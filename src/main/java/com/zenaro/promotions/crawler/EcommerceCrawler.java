@@ -13,32 +13,38 @@ import org.jsoup.select.Elements;
 
 import com.zenaro.promotions.to.ProductTO;
 
+import edu.uci.ics.crawler4j.crawler.CrawlController.WebCrawlerFactory;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 
-public abstract class EcommerceCrawler extends WebCrawler {
-	
+public abstract class EcommerceCrawler extends WebCrawler implements WebCrawlerFactory<EcommerceCrawler> {
+
 	private static final Pattern FILTERS = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g" + "|png|tiff?|mid|mp2|mp3|mp4"
 			+ "|wav|avi|mov|mpeg|ram|m4v|pdf" + "|rm|smil|wmv|swf|wma|zip|rar|gz))$");
 
 	public abstract String getCrawlDomain();
-	
+
 	protected abstract String getSelectorContainer();
 
 	protected abstract String getSelectorName();
-	
+
 	protected abstract String getSelectorPrice();
 
 	protected abstract String getSelectorPriceOld();
-	
+
+	@Override
+	public EcommerceCrawler newInstance() throws Exception {
+		return this;
+	}
+
 	@Override
 	public boolean shouldVisit(Page referringPage, WebURL url) {
 		String href = url.getURL().toLowerCase();
 		return (!FILTERS.matcher(href).matches() && href.startsWith(getCrawlDomain()));
 	}
-	
+
 	@Override
 	public void visit(Page page) {
 		if (page.getParseData() instanceof HtmlParseData) {
@@ -48,9 +54,10 @@ public abstract class EcommerceCrawler extends WebCrawler {
 
 			Elements product = doc.select(getSelectorContainer());
 			if (!product.isEmpty() && !product.attr("class").contains("unavailable")) {
-				
-				System.out.println("Produto " + product.select(getSelectorName()).text() + " : " + page.getWebURL().getURL());
-				
+
+				System.out.println(
+						"Produto " + product.select(getSelectorName()).text() + " : " + page.getWebURL().getURL());
+
 				@SuppressWarnings("unchecked")
 				List<ProductTO> products = (List<ProductTO>) myController.getCustomData();
 
@@ -61,11 +68,11 @@ public abstract class EcommerceCrawler extends WebCrawler {
 				BigDecimal pricePromoctional = null;
 				Elements campoPrecoPromocao = product.select(getSelectorPrice());
 				pricePromoctional = extractValue(campoPrecoPromocao.text());
-				
-				if(valorNormal == null){
+
+				if (valorNormal == null) {
 					valorNormal = pricePromoctional;
 				}
-				
+
 				String name = product.select(getSelectorName()).text();
 
 				if (valorNormal != null && pricePromoctional != null) {

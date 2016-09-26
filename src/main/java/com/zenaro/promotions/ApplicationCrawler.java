@@ -50,8 +50,7 @@ public class ApplicationCrawler {
 			controller.setCustomData(products);
 
 			controller.addSeed(ecommerceCrawler.getCrawlDomain());
-
-			controller.startNonBlocking(ecommerceCrawler.getClass(), numberOfCrawlers);
+			controller.startNonBlocking(ecommerceCrawler, numberOfCrawlers);
 			
 			controllers.add(controller);
 		}
