@@ -61,7 +61,7 @@ public class ApplicationCrawler {
 		
 		try {
 			Workbook wb = new XSSFWorkbook();
-			Sheet sheet = wb.createSheet("Ecomerces");
+			Sheet sheet = wb.createSheet("Ecommerces");
 
 			Row row = sheet.createRow(0);
 			row.createCell(0).setCellValue("Nome");
